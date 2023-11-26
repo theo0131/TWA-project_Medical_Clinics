@@ -1,6 +1,12 @@
 CREATE DATABASE medical_network;
 \c medical_network; -- Connect to the database
 
+CREATE USER postgres WITH ENCRYPTED PASSWORD 'postgres';
+ALTER ROLE postgres SET client_encoding TO 'utf8';
+ALTER ROLE postgres SET default_transaction_isolation TO 'read committed';
+ALTER ROLE postgres SET timezone TO 'UTC';
+GRANT ALL PRIVILEGES ON DATABASE medical_network TO postgres;
+
 CREATE TABLE users (
     user_id SERIAL PRIMARY KEY,
     username VARCHAR(50) NOT NULL,
