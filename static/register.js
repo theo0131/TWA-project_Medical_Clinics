@@ -5,6 +5,7 @@ new Vue({
       email: '',
       password: '',
       confirmPassword: '',
+      selectedRole: '',
       error: '',
       success: ''
     },

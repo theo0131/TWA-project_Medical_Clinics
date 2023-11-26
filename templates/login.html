@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>Login Page</title>
   <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -67,6 +68,37 @@
     </div>
   </div>
 
-  <script src="../static/login.js"></script>
+  <script>
+    new Vue({
+    el: '#app',
+    data: {
+      username: '',
+      password: '',
+      error: ''
+    },
+    methods: {
+      async login() {
+        try{
+          console.log(this.username)
+          const response = await axios.post('/login', {
+            username: this.username,
+            password: this.password
+          });
+
+          // Assuming your backend responds with a JWT token
+          const token = response.data.token;
+
+          // Store the token securely (local storage, Vuex, etc.)
+          localStorage.setItem('token', token);
+
+          window.location.href = '/appointments';
+        } catch (error) {
+          this.error = 'Invalid credentials. Please try again.';
+          console.log(error)
+        }
+      }
+    }
+    });
+  </script>
 </body>
 </html>

@@ -6,16 +6,28 @@ new Vue({
       error: ''
     },
     methods: {
-      login() {
-        // Simulating login functionality (replace this with actual authentication logic)
-        if (this.username === 'user' && this.password === 'password') {
-          // Login successful
+      async login() {
+        try{
+
+          console.log("nu am trimis")
+
+          const response = await axios.post('/login', {
+            username: this.username,
+            password: this.password
+          });
+
+          console.log("am trimis")
+          // Assuming your backend responds with a JWT token
+          const token = response.data.token;
+
+          // Store the token securely (local storage, Vuex, etc.)
+          localStorage.setItem('token', token);
+
           alert('Login successful');
-          // You can redirect to another page or perform other actions after successful login
-        } else {
-          // Login failed
-          this.error = 'Invalid username or password';
-        }
+      } catch (error) {
+        this.error = 'Invalid credentials. Please try again.';
+        console.error(error);
       }
     }
-  });
+  }
+});
