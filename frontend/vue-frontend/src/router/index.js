@@ -5,6 +5,7 @@ import AboutView from '../views/AboutView.vue';
 import LoginView from '../views/LoginView.vue';
 import RegisterView from '../views/RegisterView.vue';
 import CreateAppointmentView from '../views/CreateAppointmentView.vue';
+import AppointmentsView from '../views/AppointmentsView.vue'
 
 Vue.use(VueRouter);
 
@@ -30,9 +31,16 @@ const routes = [
     component: RegisterView,
   },
   {
-    path: '/appointments/create',
-    name: 'CreateAppointments',
-    component: CreateAppointmentView,
+    path: '/appointments',
+    name: 'AppointmentsView',
+    component: AppointmentsView,
+    children: [
+      {
+        path: 'create',
+        name: 'CreateAppointments',
+        component: CreateAppointmentView,
+      },
+    ]
   },
 ];
 

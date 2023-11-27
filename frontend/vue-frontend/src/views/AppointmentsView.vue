@@ -1,10 +1,5 @@
 <template>
-    <div id="app">
-      <h1>Users</h1>
-      <ul>
-        <li v-for="(user, index) in users" :key="index">{{ user.name }}</li>
-      </ul>
-    </div>
+    <router-view></router-view>
   </template>
   
   <script>
