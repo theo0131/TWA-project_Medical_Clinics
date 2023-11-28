@@ -48,6 +48,8 @@ export default {
 
           // Store the token securely (local storage, Vuex, etc.)
           localStorage.setItem('token', token);
+
+          this.$router.push("/appointments/create");
         } catch (error) {
           this.error = 'Invalid credentials. Please try again.';
           console.log(error)

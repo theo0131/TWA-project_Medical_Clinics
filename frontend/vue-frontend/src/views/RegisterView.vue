@@ -1,6 +1,6 @@
 <template>
     <div id="app">
-        <div class="register-container">
+      <div class="register-container">
         <h2>Register</h2>
         <div class="form-group">
             <label for="username">Username:</label>
@@ -30,9 +30,9 @@
         </div>
         <p v-if="error" class="error-msg">{{ error }}</p>
         <p v-if="success" class="success-msg">{{ success }}</p>
-        </div>
+      </div>
     </div>
-  </template>
+</template>
   
   <script>
   export default {

@@ -51,13 +51,15 @@ export default {
   },
   mounted() {
         // Retrieve JWT token from localStorage
+        console.log(localStorage)
+        console.log(localStorage.getItem('token'))
         const token = localStorage.getItem('token');
 
         if (token) {
           // If token exists, make an authenticated request to get doctors
           axios.get('http://127.0.0.1:5000/doctors', {
             headers: {
-              Authorization: `Bearer ${token}`
+              Authorization: `${token}`
             }
           })
           .then(response => {
