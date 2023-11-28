@@ -87,20 +87,16 @@ app.config['JWT_SECRET_KEY'] = "123d$!@98w21w1D#D!"  # Change this to a secret k
 @app.route("/login", methods=["POST"])
 def login():
     data = request.get_json()
-    print("data " + str(data))
     username = data.get('username')
     password = data.get('password')
 
     credentials = users.get(username)
     if credentials and password == credentials['password']:
-        print("username" + str(username))
-        print("password" + str(password))
         payload = {
             'username': str(username),
             'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)  # Token expiration time
         }
         token = jwt.encode(payload, app.config['JWT_SECRET_KEY'], algorithm='HS256')
-        print("token " + str(token))
         return jsonify({'token': token}), 200
     else:
         return jsonify({'message': 'Invalid credentials'}), 401
@@ -116,9 +112,20 @@ def get_users():
 
 @app.route('/doctors')
 def doctors():
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({'message': 'Missing token'}), 401
 
-    # TODO Replace with call from Database
-    return jsonify(doctor_data), 200
+    try:
+        decoded = jwt.decode(token, app.config['JWT_SECRET_KEY'], algorithms=['HS256'])
+        return jsonify(doctor_data), 200
+    except jwt.ExpiredSignatureError:
+        print("ExpiredSignatureError")
+        return jsonify({'message': 'Token expired'}), 401
+    except jwt.InvalidTokenError:
+        print("InvalidTokenError")
+        return jsonify({'message': 'Invalid token'}), 401
+    
 
 if __name__ == '__main__':
     app.run(debug=True)
