@@ -67,6 +67,7 @@ from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
 import jwt
 import datetime
+<<<<<<< HEAD
 from flask_swagger_ui import get_swaggerui_blueprint
 
 SWAGGER_URL="/swagger"
@@ -82,6 +83,9 @@ swagger_ui_blueprint = get_swaggerui_blueprint(
         'supportedSubmitMethods': ['get', 'post', 'put', 'delete'],
     },
 )
+=======
+import psycopg2
+>>>>>>> create connection to postgresql
 
 # # Simulated user data (replace with your user database logic)
 users = {
@@ -93,6 +97,38 @@ doctor_data = [
     {'id': 1, 'name': 'Dr. Smith', 'specialty': 'Cardiologist'},
     {'id': 2, 'name': 'Dr. Johnson', 'specialty': 'Dermatologist'},
 ]
+
+db_params = {
+    'host': '172.17.232.145',
+    'database': 'medical_network',
+    'user': 'postgres',
+    'password': 'postgres',
+    'port': '5432',
+}
+
+try:
+    # Establish a connection to the PostgreSQL database
+    connection = psycopg2.connect(**db_params)
+
+    # Create a cursor object to interact with the database
+    cursor = connection.cursor()
+
+    # Example: Execute a SQL query
+    cursor.execute("SELECT version();")
+    version = cursor.fetchone()
+    print(f"Connected to the PostgreSQL database. Server version: {version}")
+
+    # You can perform more database operations here...
+
+except (Exception, psycopg2.Error) as error:
+    print(f"Error: {error}")
+
+finally:
+    # Close the cursor and connection
+    if connection:
+        cursor.close()
+        connection.close()
+        print("Connection closed.")
 
 app = Flask(__name__)
 
