@@ -80,6 +80,13 @@ doctor_data = [
     {'id': 2, 'name': 'Dr. Johnson', 'specialty': 'Dermatologist'},
 ]
 
+# steps to connect to postgresql database: install postgresql, 
+# start postgresql server: sudo service postgresql start, 
+# check with pg_isready, 
+# run the sql file: su - postgres
+#                   psql -f database.sql
+# run app.py
+
 db_params = {
     'host': '172.17.232.145',
     'database': 'medical_network',
@@ -106,11 +113,37 @@ except (Exception, psycopg2.Error) as error:
     print(f"Error: {error}")
 
 finally:
-    # Close the cursor and connection
-    if connection:
+    if cursor:
         cursor.close()
-        connection.close()
-        print("Connection closed.")
+#     # Close the cursor and connection
+#     if connection:
+#         cursor.close()
+#         connection.close()
+#         print("Connection closed.")
+
+##########################################################
+def insert_user(username, password, email, type):
+    try:
+        # Create a cursor object to interact with the database
+        cursor = connection.cursor()
+
+        # Insert a new user
+        cursor.execute("INSERT INTO users (username, user_password, email, user_type) VALUES (%s, %s, %s, %s) RETURNING user_id", (username, password, email, type))
+
+        # Commit the transaction
+        connection.commit()
+
+        # Fetch the ID of the inserted user
+        user_id = cursor.fetchone()[0]
+        print(f"User with ID {user_id} inserted successfully.")
+
+    except (Exception, psycopg2.Error) as error:
+        print(f"Error: {error}")
+
+    finally:
+        # Close the cursor
+        if cursor:
+            cursor.close()
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes

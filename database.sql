@@ -1,5 +1,5 @@
 CREATE DATABASE medical_network;
-\c medical_network; -- Connect to the database
+\c medical_network;
 
 CREATE USER postgres WITH ENCRYPTED PASSWORD 'postgres';
 ALTER ROLE postgres SET client_encoding TO 'utf8';
