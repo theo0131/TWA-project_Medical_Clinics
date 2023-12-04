@@ -67,6 +67,18 @@ from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
 import jwt
 import datetime
+from flask_swagger_ui import get_swaggerui_blueprint
+
+SWAGGER_URL="/swagger"
+API_URL="/static/swagger.json"
+
+swagger_ui_blueprint = get_swaggerui_blueprint(
+    SWAGGER_URL,
+    API_URL,
+    config={
+        'app_name': 'Access API'
+    }
+)
 
 # # Simulated user data (replace with your user database logic)
 users = {
@@ -80,6 +92,9 @@ doctor_data = [
 ]
 
 app = Flask(__name__)
+
+app.register_blueprint(swagger_ui_blueprint, url_prefix=SWAGGER_URL)
+
 CORS(app)  # Enable CORS for all routes
 
 app.config['JWT_SECRET_KEY'] = "123d$!@98w21w1D#D!"  # Change this to a secret key for production
