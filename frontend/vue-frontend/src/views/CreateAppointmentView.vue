@@ -15,8 +15,6 @@
                   {{ doctor.name }}
                 </option>
               </select>
-              <p>Selected User Index: {{ selectedUserIndex }}</p>
-              <p>Selected User: {{ doctors[selectedUserIndex]?.name }}</p>
           </div>
           <div class="form-group">
               <label for="appointmentDate" class="form-group">Appointment Date:</label>
