@@ -76,8 +76,11 @@ swagger_ui_blueprint = get_swaggerui_blueprint(
     SWAGGER_URL,
     API_URL,
     config={
-        'app_name': 'Access API'
-    }
+        'app_name': 'Access API',
+        'displayOperationId': True,
+        'displayRequestDuration': True,
+        'supportedSubmitMethods': ['get', 'post', 'put', 'delete'],
+    },
 )
 
 # # Simulated user data (replace with your user database logic)
@@ -140,7 +143,6 @@ def doctors():
     except jwt.InvalidTokenError:
         print("InvalidTokenError")
         return jsonify({'message': 'Invalid token'}), 401
-    
 
 if __name__ == '__main__':
     app.run(debug=True)
