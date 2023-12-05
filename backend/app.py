@@ -144,5 +144,16 @@ def doctors():
         print("InvalidTokenError")
         return jsonify({'message': 'Invalid token'}), 401
 
+@app.route('/register', methods=['POST'])
+def register():
+    data = request.get_json()
+    username = data.get('username')
+    password = data.get('password')
+    email = data.get('email')
+    role = data.get('role')
+
+    # insert_user(username, password, email, role)
+    return jsonify({'message': 'User Registered'}), 200
+
 if __name__ == '__main__':
     app.run(debug=True)
