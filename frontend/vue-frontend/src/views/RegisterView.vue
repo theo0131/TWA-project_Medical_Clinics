@@ -12,7 +12,7 @@
         </div>
         <div class="form-group">
             <label for="role">Role:</label>
-            <select id="role" v-model="selectedRole" class="input-field">
+            <select id="role" v-model="role" class="input-field">
             <option value="patient">Patient</option>
             <option value="doctor">Doctor</option>
             </select>
@@ -35,6 +35,8 @@
   </template>
   
   <script>
+  import axios from 'axios';
+
   export default {
     name: 'RegisterView',
     data() {
@@ -43,7 +45,7 @@
         email: '',
         password: '',
         confirmPassword: '',
-        selectedRole: '',
+        role: '',
         error: '',
         success: ''
       };
@@ -51,7 +53,7 @@
     mounted() {
     },
     methods: {
-      register() {
+      async register() {
         // Simulating registration functionality (replace this with actual validation and backend logic)
         if (
           this.username !== '' &&
@@ -59,12 +61,20 @@
           this.password !== '' &&
           this.password === this.confirmPassword
         ) {
+          console.log(this.username, this.password)
+          await axios.post('http://127.0.0.1:5000/register', {
+            username: this.username,
+            password: this.password,
+            email: this.email,
+            role: this.role
+          });
           // Registration successful
           this.success = 'Registration successful';
           // You can redirect to another page or perform other actions after successful registration
         } else {
           // Registration failed
           this.error = 'Please fill in all fields correctly';
+          console.log(this.error)
         }
       }
     }
