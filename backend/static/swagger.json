@@ -1,0 +1,100 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Access API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/login": {
+      "post": {
+        "description": "Returns token for the current user that tries to login",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "UserDto",
+            "in": "body",
+            "description": "JSON data for the current user",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UserDto"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/doctors": {
+      "get": {
+        "description": "Returns token for the current user that tries to login",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "JWT Token used to authorize the current operation",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/JWT"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/api/users": {
+      "get": {
+        "description": "Returns token for the current user that tries to login",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "JWT Token used to authorize the current operation",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/JWT"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "UserDto": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
+    "JWT": {
+      "type": "string"
+    }
+  }
+}
