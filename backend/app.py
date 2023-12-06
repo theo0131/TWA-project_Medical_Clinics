@@ -67,7 +67,6 @@ from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
 import jwt
 import datetime
-<<<<<<< HEAD
 from flask_swagger_ui import get_swaggerui_blueprint
 
 SWAGGER_URL="/swagger"
@@ -83,9 +82,8 @@ swagger_ui_blueprint = get_swaggerui_blueprint(
         'supportedSubmitMethods': ['get', 'post', 'put', 'delete'],
     },
 )
-=======
+
 import psycopg2
->>>>>>> create connection to postgresql
 
 # # Simulated user data (replace with your user database logic)
 users = {
