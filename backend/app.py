@@ -104,10 +104,10 @@ doctor_data = [
 # run app.py
 
 db_params = {
-    'host': '172.17.232.145',
+    'host': 'localhost',
     'database': 'medical_network',
     'user': 'postgres',
-    'password': 'postgres',
+    'password': 'ola',
     'port': '5432',
 }
 
@@ -160,6 +160,35 @@ def insert_user(username, password, email, type):
         # Close the cursor
         if cursor:
             cursor.close()
+
+def get_user_by_username(username):
+    try:
+        # Create a cursor to perform database operations
+        cursor = connection.cursor()
+
+        # Execute the SQL query to select the user by username
+        cursor.execute("SELECT * FROM users WHERE username = {}", (username))
+        
+
+        # Fetch the result (if any)
+        user = cursor.fetchone()
+
+        if user:
+            print(f"User found: {user}")
+            return user
+        else:
+            print("User not found")
+            return None
+
+    except (Exception, psycopg2.Error) as error:
+        print(f"Error retrieving user: {error}")
+
+    finally:
+        # Close the cursor
+        if cursor:
+            cursor.close()
+
+insert_user("user2", "pswd2", "email2@ola.com", "pacient")
 
 app = Flask(__name__)
 
