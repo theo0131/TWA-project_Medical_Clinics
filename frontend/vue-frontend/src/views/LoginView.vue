@@ -1,45 +1,59 @@
 <template>
-    <body>
-        <div id="app">
-            <div class="login-container">
+    <div>
+        <NavBar></NavBar>
+        <div class="container mt-4 text-center">
+            <div 
+                class="login-container mx-auto"
+                 >
                 <h2>Login</h2>
                 <div class="form-group">
-                    <label for="username">Username:</label>
-                    <input type="text" id="username" v-model="username">
+                    <label for="email">Email</label>
+                    <br><input type="text" id="email" v-model="email">
+                </div>
+                <br>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <br><input type="password" id="password" v-model="password">
                 </div>
                 <div class="form-group">
-                    <label for="password">Password:</label>
-                    <input type="password" id="password" v-model="password">
-                </div>
-                <div class="form-group">
-                    <button @click="login">Login</button>
+                    <button 
+                        class="btn btn-primary m-2"
+                        @click="login">Login</button>
                 </div>
                 <p v-if="error" style="color: red;">{{ error }}</p>
             </div>
         </div>
-    </body>
+    </div>
 </template>
 
 <script>
 import axios from 'axios';
+import NavBar from '@/components/NavBar.vue';
+import authService from '@/services/AuthService';
 
 export default {
     name: 'LoginView',
+    components: {
+        NavBar
+    },
     data() {
         return {
-            username: '',
+            email: '',
             password: '',
             error: ''
         };
+    },
+    computed:{
+
     },
     mounted() {
     },
     methods: {
       async login() {
         try{
-          console.log(this.username, this.password)
+          console.log(this.email, this.password)
           const response = await axios.post('http://127.0.0.1:5000/login', {
-            username: this.username,
+            email: this.email,
             password: this.password
           });
 
@@ -49,7 +63,9 @@ export default {
           // Store the token securely (local storage, Vuex, etc.)
           localStorage.setItem('token', token);
 
-          this.$router.push("/appointments/create");
+          authService.login()
+
+          this.$router.push("/appointments/view");
         } catch (error) {
           this.error = 'Invalid credentials. Please try again.';
           console.log(error)
@@ -75,6 +91,7 @@ export default {
         padding: 20px;
         border-radius: 5px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        max-width: 400px;
     }
     .form-group {
         margin-bottom: 15px;

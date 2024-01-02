@@ -1,42 +1,49 @@
 <template>
-    <div id="app">
-      <h1>Welcome to the Medical Appointment System</h1>
-      <div>
+  <div>
+    <NavBar></NavBar>
+    <div class="container mt-4">
+      <h1>Welcome to the Medical Appointment System</h1><br>
+      <div 
+        style="max-width: 800px;"
+        class="border p-4 mx-auto">
         <h2>Make an Appointment</h2>
-        <form @submit.prevent="scheduleAppointment">
+        <br>
+        <form
+          class="form"
+          @submit.prevent="scheduleAppointment">
           <div class="form-group">
-              <label for="patientName" class="form-group">Patient Name:</label>
-              <input type="text" v-model="appointment.patientName" class="form-group">
-          </div>
-          <div class="form-group">
-              <label for="doctor" class="form-group">Doctor:</label>
+              <label for="doctor">Doctor:</label>
               <select v-model="selectedUserIndex" id="userSelect">
-                <option v-for="(doctor, index) in doctors" :key="index">
-                  {{ doctor.name }}
+                <option v-for="doctor in doctors" :key="doctor.medic_id" :value="doctor.medic_id">
+                  {{ doctor.firstName + ' ' + doctor.lastName}}
                 </option>
               </select>
-              <p>Selected User Index: {{ selectedUserIndex }}</p>
-              <p>Selected User: {{ doctors[selectedUserIndex]?.name }}</p>
           </div>
           <div class="form-group">
-              <label for="appointmentDate" class="form-group">Appointment Date:</label>
-              <input type="datetime-local" v-model="appointment.appointmentDate" class="form-group">
+              <label for="appointmentDate" >Appointment Date:</label>
+              <input type="datetime-local" v-model="appointment.appointmentDate">
           </div>
-          <div class="form-group">
-              <button type="submit" class="form-group">Schedule Appointment</button>
+          <br>
+          <div >
+              <button type="submit" class="btn btn-primary">Schedule Appointment</button>
           </div>
         </form>
         <p v-if="successMessage" style="color: green;">{{ successMessage }}</p>
         <p v-if="errorMessage" style="color: red;">{{ errorMessage }}</p>
       </div>
     </div>
+  </div>
   </template>
-  
+
 <script>
 import axios from 'axios';
+import NavBar from '@/components/NavBar.vue';
 
 export default {
   name: 'CreateAppointment',
+  components:{
+    NavBar
+  },
   data() {
     return {
       appointment: {
@@ -82,6 +89,7 @@ export default {
       // Logic to schedule appointment
       // Include the token in the request headers for authentication
       const token = localStorage.getItem('token');
+      console.log(this.selectedUserIndex);
       if (token) {
         axios.post('http://127.0.0.1:5000/appointments/create', this.appointment, {
           headers: {
@@ -144,14 +152,6 @@ body {
     padding: 8px;
     border: 1px solid #ccc;
     border-radius: 4px;
-  }
-  .form-group button {
-    padding: 8px 12px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
   }
   .form-group button:hover {
     background-color: #0056b3;

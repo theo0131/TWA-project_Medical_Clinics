@@ -5,6 +5,7 @@ import AboutView from '../views/AboutView.vue';
 import LoginView from '../views/LoginView.vue';
 import RegisterView from '../views/RegisterView.vue';
 import CreateAppointmentView from '../views/CreateAppointmentView.vue';
+import ReadAppointmentsView from '../views/ReadAppointmentsView.vue';
 import AppointmentsView from '../views/AppointmentsView.vue'
 
 Vue.use(VueRouter);
@@ -39,6 +40,11 @@ const routes = [
         path: 'create',
         name: 'CreateAppointments',
         component: CreateAppointmentView,
+      },
+      {
+        path: 'view',
+        name: 'ReadAppointments',
+        component: ReadAppointmentsView,
       },
     ]
   },

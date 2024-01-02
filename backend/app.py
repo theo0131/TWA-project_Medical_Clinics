@@ -1,73 +1,9 @@
-# from flask import Flask, render_template, request, jsonify
-# import jwt
-# import datetime
-
-# app = Flask(__name__)
-
-# # Simulated user data (replace with your user database logic)
-# users = {
-#     'user1': {'password': 'password1', 'role': 'user'},
-#     'user2': {'password': 'password2', 'role': 'admin'}
-# }
-
-# @app.route('/', methods=['GET'])
-# def show_users():
-#     return jsonify(users), 200
-
-# @app.route("/login", methods=["POST"])
-# def login():
-#     data = request.get_json()
-#     print("data " + str(data))
-#     username = data.get('username')
-#     password = data.get('password')
-
-#     credentials = users.get(username)
-#     if credentials and password == credentials['password']:
-#         print("username" + str(username))
-#         print("password" + str(password))
-#         payload = {
-#             'username': str(username),
-#             'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)  # Token expiration time
-#         }
-#         token = jwt.encode(payload, app.config['JWT_SECRET_KEY'], algorithm='HS256')
-#         print("token " + str(token))
-#         return jsonify({'token': token}), 200
-#     else:
-#         return jsonify({'message': 'Invalid credentials'}), 401
-
-# # Protected route example - Requires a valid JWT token to access
-# # @app.route('/appointments', methods=['GET'])
-# # def appointments():
-# #     token = request.headers.get('Authorization')
-# #     if not token:
-# #         return jsonify({'message': 'Missing token'}), 401
-
-# #     try:
-# #         decoded = jwt.decode(token, app.config['JWT_SECRET_KEY'], algorithms=['HS256'])
-# #         return jsonify({'username': decoded['username']}), 200
-# #     except jwt.ExpiredSignatureError:
-# #         return jsonify({'message': 'Token expired'}), 401
-# #     except jwt.InvalidTokenError:
-# #         return jsonify({'message': 'Invalid token'}), 401
-
-# @app.route('/doctors')
-# def doctors():
-#     doctor_data = [
-#         {'id': 1, 'name': 'Dr. Smith', 'specialty': 'Cardiologist'},
-#         {'id': 2, 'name': 'Dr. Johnson', 'specialty': 'Dermatologist'},
-#     ]
-
-#     # TODO Replace with call from Database
-#     return jsonify(doctor_data), 200
-
-# if __name__ == '__main__':
-#     app.run(debug=True)
-
 from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
 import jwt
 import datetime
 from flask_swagger_ui import get_swaggerui_blueprint
+from functools import wraps
 
 SWAGGER_URL="/swagger"
 API_URL="/static/swagger.json"
@@ -87,13 +23,36 @@ import psycopg2
 
 # # Simulated user data (replace with your user database logic)
 users = {
-    'user1': {'password': 'password1', 'role': 'user'},
+    'user1': {'password': 'password1', 'role': 'client'},
     'user2': {'password': 'password2', 'role': 'admin'}
 }
 
-doctor_data = [
-    {'id': 1, 'name': 'Dr. Smith', 'specialty': 'Cardiologist'},
-    {'id': 2, 'name': 'Dr. Johnson', 'specialty': 'Dermatologist'},
+appointments = [
+    {
+        'id' : 1,
+        'doctor_name' : 'Dr. Smith',
+        'date' : '2023-01-01'
+    },
+    {
+        'id' : 2,
+        'doctor_name' : 'Dr. Smith',
+        'date' : '2023-02-01'
+    },
+    {
+        'id' : 3,
+        'doctor_name' : 'Dr. Smith',
+        'date' : '2023-02-01'
+    },
+    {
+        'id' : 4,
+        'doctor_name' : 'Dr. Smith',
+        'date' : '2023-02-01'
+    },
+    {
+        'id' : 5,
+        'doctor_name' : 'Dr. Smith',
+        'date' : '2023-02-01'
+    }
 ]
 
 # steps to connect to postgresql database: install postgresql, 
@@ -107,7 +66,7 @@ db_params = {
     'host': 'localhost',
     'database': 'medical_network',
     'user': 'postgres',
-    'password': 'ola',
+    'password': 'postgres',
     'port': '5432',
 }
 
@@ -136,22 +95,27 @@ finally:
 #         cursor.close()
 #         connection.close()
 #         print("Connection closed.")
-
-##########################################################
-def insert_user(username, password, email, type):
+        
+#####################################################################################################
+def insert_user(firstName, lastName, email, password, type):
     try:
         # Create a cursor object to interact with the database
         cursor = connection.cursor()
 
         # Insert a new user
-        cursor.execute("INSERT INTO users (username, user_password, email, user_type) VALUES (%s, %s, %s, %s) RETURNING user_id", (username, password, email, type))
 
+        print(firstName)
+        cursor.execute("INSERT INTO users (first_name, last_name, email, user_password, user_type) VALUES (%s, %s, %s, %s, %s) RETURNING user_id;", (firstName, lastName, email, password, type))
+
+        print(firstName)
         # Commit the transaction
         connection.commit()
 
         # Fetch the ID of the inserted user
         user_id = cursor.fetchone()[0]
         print(f"User with ID {user_id} inserted successfully.")
+
+        return user_id
 
     except (Exception, psycopg2.Error) as error:
         print(f"Error: {error}")
@@ -161,15 +125,51 @@ def insert_user(username, password, email, type):
         if cursor:
             cursor.close()
 
-def get_user_by_username(username):
+def get_user_by_email(email):
+    try:
+        # Create a cursor to perform database operations
+        cursor = connection.cursor()
+
+        print(type(email))
+
+        # Execute the SQL query to select the user by username
+        cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
+        
+        print('here2')
+
+        # Fetch the result (if any)
+        user = cursor.fetchone()
+
+        if cursor:
+            cursor.close()
+
+        if user:
+            print(f"User found: {user}")
+            return {
+                "id": user[0],
+                "email": user[2],
+                "password": user[3]
+            }
+        else:
+            print("User not found")
+            return None
+
+    except (Exception, psycopg2.Error) as error:
+        print(f"Error retrieving user: {error}")
+
+    finally:
+        # Close the cursor
+        if cursor:
+            cursor.close()
+
+def get_user_by_id(id):
     try:
         # Create a cursor to perform database operations
         cursor = connection.cursor()
 
         # Execute the SQL query to select the user by username
-        cursor.execute("SELECT * FROM users WHERE username = {}", (username))
+        cursor.execute("SELECT * FROM users WHERE user_id = %s", (id,))
         
-
         # Fetch the result (if any)
         user = cursor.fetchone()
 
@@ -188,7 +188,184 @@ def get_user_by_username(username):
         if cursor:
             cursor.close()
 
-insert_user("user2", "pswd2", "email2@ola.com", "pacient")
+def get_pacient_by_user_id(id):
+    try:
+        # Create a cursor to perform database operations
+        cursor = connection.cursor()
+
+        # Execute the SQL query to select the user by username
+        cursor.execute("SELECT * FROM pacients WHERE user_id = %s", (id,))
+        
+        # Fetch the result (if any)
+        user = cursor.fetchone()
+
+        if user:
+            print(f"User found: {user}")
+            return user
+        else:
+            print("User not found")
+            return None
+
+    except (Exception, psycopg2.Error) as error:
+        print(f"Error retrieving user: {error}")
+
+    finally:
+        # Close the cursor
+        if cursor:
+            cursor.close()
+
+
+def insert_pacient(user_id, gender, age, medical_history):
+    try:
+        # Create a cursor object to interact with the database
+        cursor = connection.cursor()
+
+        # Insert a new user
+        cursor.execute("INSERT INTO pacients (user_id, gender, age, medical_history) VALUES (%s, %s, %s, %s) RETURNING pacient_id", (user_id, gender, age, medical_history))
+
+        # Commit the transaction
+        connection.commit()
+
+        # Fetch the ID of the inserted user
+        pacient_id = cursor.fetchone()[0]
+        print(f"Pacient with ID {pacient_id} inserted successfully.")
+
+    except (Exception, psycopg2.Error) as error:
+        print(f"Error: {error}")
+
+    finally:
+        # Close the cursor
+        if cursor:
+            cursor.close()
+
+def get_all_doctors():
+    try:
+        # Create a cursor object to interact with the database
+        cursor = connection.cursor()
+
+        # Insert a new user
+        cursor.execute("""SELECT medics.medic_id, medics.specialization, users.first_name, users.last_name 
+                       FROM medics 
+                       JOIN users ON medics.user_id = users.user_id;""")
+
+        # Commit the transaction
+        connection.commit()
+
+        # Fetch the ID of the inserted user
+        doctors = cursor.fetchall()
+
+        doctors_list = []
+        for doctor in doctors:
+            doctors_list.append({
+                'medic_id': doctor[0],
+                'specialization' : doctor[1],
+                'firstName' : doctor[2],
+                'lastName' : doctor[3]
+            })
+        print(doctors_list)
+        return doctors_list
+    
+    except (Exception, psycopg2.Error) as error:
+        print(f"Error: {error}")
+
+    finally:
+        # Close the cursor
+        if cursor:
+            cursor.close()
+
+def insert_doctor(user_id, specialization):
+    try:
+        # Create a cursor object to interact with the database
+        cursor = connection.cursor()
+
+        # Insert a new user
+        cursor.execute("INSERT INTO medics (user_id, specialization) VALUES (%s, %s) RETURNING medic_id", (user_id, specialization))
+
+        # Commit the transaction
+        connection.commit()
+
+        # Fetch the ID of the inserted user
+        pacient_id = cursor.fetchone()[0]
+        print(f"Pacient with ID {pacient_id} inserted successfully.")
+
+    except (Exception, psycopg2.Error) as error:
+        print(f"Error: {error}")
+
+    finally:
+        # Close the cursor
+        if cursor:
+            cursor.close()
+
+def get_all_specialties():
+    try:
+        # Create a cursor object to interact with the database
+        cursor = connection.cursor()
+
+        # Insert a new user
+        cursor.execute("""SELECT * 
+                       FROM specializations;""")
+
+        # Commit the transaction
+        connection.commit()
+
+        # Fetch the ID of the inserted user
+        specialties = cursor.fetchall()
+
+        specialties_list = []
+        for specialty in specialties:
+            specialties_list.append({
+                'id': specialty[0],
+                'name' : specialty[1],
+            })
+        print(specialties_list)
+        return specialties_list
+    
+    except (Exception, psycopg2.Error) as error:
+        print(f"Error: {error}")
+
+    finally:
+        # Close the cursor
+        if cursor:
+            cursor.close()
+
+###################################################################################################
+
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = None
+        if "Authorization" in request.headers:
+            token = request.headers.get("Authorization")
+        
+        if not token:
+            return {
+                "message": "Authentication Token is missing!",
+                "data": None,
+                "error": "Unauthorized"
+            }, 401
+        
+        try:
+            decoded = jwt.decode(token, app.config['JWT_SECRET_KEY'], algorithms=['HS256'])
+            user = get_user_by_id(decoded["id"])
+
+            if user is None:
+                return {
+                "message": "Invalid Authentication token!",
+                "data": None,
+                "error": "Unauthorized"
+            }, 401
+
+        except Exception as e:
+            return {
+                "message": "Something went wrong",
+                "data": None,
+                "error": str(e)
+            }, 500
+
+        return f(*args, **kwargs)
+
+    return decorated
+##############################################
 
 app = Flask(__name__)
 
@@ -201,13 +378,17 @@ app.config['JWT_SECRET_KEY'] = "123d$!@98w21w1D#D!"  # Change this to a secret k
 @app.route("/login", methods=["POST"])
 def login():
     data = request.get_json()
-    username = data.get('username')
+    print(data)
+    email = data.get('email')
     password = data.get('password')
 
-    credentials = users.get(username)
+    print(email)
+    credentials = get_user_by_email(email)
+    print(credentials)
+
     if credentials and password == credentials['password']:
         payload = {
-            'username': str(username),
+            'id': str(credentials['id']),
             'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)  # Token expiration time
         }
         token = jwt.encode(payload, app.config['JWT_SECRET_KEY'], algorithm='HS256')
@@ -225,20 +406,45 @@ def get_users():
     return jsonify(users)
 
 @app.route('/doctors')
+@token_required
 def doctors():
-    token = request.headers.get('Authorization')
-    if not token:
-        return jsonify({'message': 'Missing token'}), 401
+    doctors = get_all_doctors()
+    return jsonify(doctors), 200
 
-    try:
-        decoded = jwt.decode(token, app.config['JWT_SECRET_KEY'], algorithms=['HS256'])
-        return jsonify(doctor_data), 200
-    except jwt.ExpiredSignatureError:
-        print("ExpiredSignatureError")
-        return jsonify({'message': 'Token expired'}), 401
-    except jwt.InvalidTokenError:
-        print("InvalidTokenError")
-        return jsonify({'message': 'Invalid token'}), 401
+@app.route('/specialties')
+def getSpecialties():
+     return jsonify(get_all_specialties()), 200
+
+@app.route('/appointments/create', methods=['POST'])
+@token_required
+def createAppointment():
+    doctors = get_all_doctors()
+    return jsonify(doctors), 200
+
+@app.route('/register', methods=["POST"])
+def registerNewUser():
+    data = request.get_json()
+    firstName = data.get('firstName')
+    lastName = data.get('lastName')
+    email = data.get('email')
+    gender = data.get('gender')
+    role = data.get('role')
+    specialty = data.get('specialty')
+    password = data.get('password')
+    age = data.get('age')
+
+    print(firstName)
+
+    user_id = insert_user(firstName, lastName, email, password, role)
+
+    if role == "pacient":
+        print("INSERTING NEW PACIENT")
+        insert_pacient(user_id, gender, age, " ")
+
+    if role == "doctor":
+        insert_doctor(user_id, specialty)
+    return jsonify({}), 200
+
 
 if __name__ == '__main__':
     app.run(debug=True)

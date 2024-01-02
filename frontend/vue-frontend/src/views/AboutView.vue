@@ -1,6 +1,8 @@
 <template>
-  <div id="app">
-    <h1>Users</h1>
+  <div>
+    <NavBar></NavBar>
+    <h1>This is a div used specifically to check CRUD operations, specifically Read</h1>
+    <h2>Users</h2>
     <ul>
       <li v-for="(user, index) in users" :key="index">{{ user.name }}</li>
     </ul>
@@ -8,8 +10,13 @@
 </template>
 
 <script>
+import NavBar from '@/components/NavBar.vue'
+
 export default {
   name: 'HomeView',
+  components:{
+    NavBar
+  },
   data() {
     return {
       users: [],
@@ -25,11 +32,5 @@ export default {
 };
 </script>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+<style scoped>
 </style>
