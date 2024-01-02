@@ -83,6 +83,8 @@ swagger_ui_blueprint = get_swaggerui_blueprint(
     },
 )
 
+import psycopg2
+
 # # Simulated user data (replace with your user database logic)
 users = {
     'user1': {'password': 'password1', 'role': 'user'},
@@ -93,6 +95,100 @@ doctor_data = [
     {'id': 1, 'name': 'Dr. Smith', 'specialty': 'Cardiologist'},
     {'id': 2, 'name': 'Dr. Johnson', 'specialty': 'Dermatologist'},
 ]
+
+# steps to connect to postgresql database: install postgresql, 
+# start postgresql server: sudo service postgresql start, 
+# check with pg_isready, 
+# run the sql file: su - postgres
+#                   psql -f database.sql
+# run app.py
+
+db_params = {
+    'host': 'localhost',
+    'database': 'medical_network',
+    'user': 'postgres',
+    'password': 'ola',
+    'port': '5432',
+}
+
+try:
+    # Establish a connection to the PostgreSQL database
+    connection = psycopg2.connect(**db_params)
+
+    # Create a cursor object to interact with the database
+    cursor = connection.cursor()
+
+    # Example: Execute a SQL query
+    cursor.execute("SELECT version();")
+    version = cursor.fetchone()
+    print(f"Connected to the PostgreSQL database. Server version: {version}")
+
+    # You can perform more database operations here...
+
+except (Exception, psycopg2.Error) as error:
+    print(f"Error: {error}")
+
+finally:
+    if cursor:
+        cursor.close()
+#     # Close the cursor and connection
+#     if connection:
+#         cursor.close()
+#         connection.close()
+#         print("Connection closed.")
+
+##########################################################
+def insert_user(username, password, email, type):
+    try:
+        # Create a cursor object to interact with the database
+        cursor = connection.cursor()
+
+        # Insert a new user
+        cursor.execute("INSERT INTO users (username, user_password, email, user_type) VALUES (%s, %s, %s, %s) RETURNING user_id", (username, password, email, type))
+
+        # Commit the transaction
+        connection.commit()
+
+        # Fetch the ID of the inserted user
+        user_id = cursor.fetchone()[0]
+        print(f"User with ID {user_id} inserted successfully.")
+
+    except (Exception, psycopg2.Error) as error:
+        print(f"Error: {error}")
+
+    finally:
+        # Close the cursor
+        if cursor:
+            cursor.close()
+
+def get_user_by_username(username):
+    try:
+        # Create a cursor to perform database operations
+        cursor = connection.cursor()
+
+        # Execute the SQL query to select the user by username
+        cursor.execute("SELECT * FROM users WHERE username = {}", (username))
+        
+
+        # Fetch the result (if any)
+        user = cursor.fetchone()
+
+        if user:
+            print(f"User found: {user}")
+            return user
+        else:
+            print("User not found")
+            return None
+
+    except (Exception, psycopg2.Error) as error:
+        print(f"Error retrieving user: {error}")
+
+    finally:
+        # Close the cursor
+        if cursor:
+            cursor.close()
+
+insert_user("user2", "pswd2", "email2@ola.com", "pacient")
 
 app = Flask(__name__)
 
