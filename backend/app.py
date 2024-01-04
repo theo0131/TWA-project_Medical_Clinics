@@ -418,6 +418,17 @@ def getSpecialties():
 @app.route('/appointments/create', methods=['POST'])
 @token_required
 def createAppointment():
+    data = request.get_json()
+    print(data)
+    # TODO introdu aceste data in database
+    doctors = get_all_doctors()
+    return jsonify(doctors), 200
+
+@app.route('/appointments/update', methods=['POST'])
+def updateAppointment():
+    data = request.get_json()
+    print(data)
+    # TODO updateaza aceste data in database
     doctors = get_all_doctors()
     return jsonify(doctors), 200
 
@@ -425,7 +436,17 @@ def createAppointment():
 @token_required
 def view_appointment(appointment_id):
     print("DE AICI")
-    return jsonify({"id" : appointment_id}), 200
+    appointment = {
+        "id" : appointment_id,
+        "medic" : "Ion",
+        "pacient" : "Vasile",
+        "time" : "12:00 PM",
+        "reason" : "Ca de ce nu pana la urma",
+        "diagnostic" : "Mai stai si tu pe acasa",
+        "userType" : "pacient"
+    }
+
+    return jsonify(appointment), 200
 
 @app.route('/register', methods=["POST"])
 def registerNewUser():

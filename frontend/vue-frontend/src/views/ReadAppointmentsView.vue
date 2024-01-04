@@ -73,6 +73,8 @@ export default {
                     // Handle error (e.g., authentication failure or unauthorized access)
                     console.error('Error fetching doctors:', error);
                 });
+
+            // TODO: ia din database appointmenturile
         } else {
             // Token doesn't exist in localStorage, handle accordingly
             console.log('No token found in localStorage');

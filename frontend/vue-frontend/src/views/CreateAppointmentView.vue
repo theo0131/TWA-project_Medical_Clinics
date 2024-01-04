@@ -23,6 +23,10 @@
               <label for="appointmentDate" >Appointment Date:</label>
               <input type="datetime-local" v-model="appointment.appointmentDate">
           </div>
+          <div class="form-group">
+              <label for="reason" >Reason:</label>
+              <input v-model="appointment.reason">
+          </div>
           <br>
           <div >
               <button type="submit" class="btn btn-primary">Schedule Appointment</button>
@@ -48,7 +52,8 @@ export default {
     return {
       appointment: {
         patientName: '',
-        appointmentDate: ''
+        appointmentDate: '',
+        reason: ''
       },
       doctors: [],
       successMessage: '',
@@ -99,6 +104,7 @@ export default {
         .then(response => {
           // Handle successful appointment scheduling
           this.successMessage = 'Appointment scheduled successfully!';
+          console.log("De aici")
           console.log(response.data);
           this.clearForm();
         })
