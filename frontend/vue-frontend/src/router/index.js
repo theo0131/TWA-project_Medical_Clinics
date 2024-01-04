@@ -7,6 +7,7 @@ import RegisterView from '../views/RegisterView.vue';
 import CreateAppointmentView from '../views/CreateAppointmentView.vue';
 import ReadAppointmentsView from '../views/ReadAppointmentsView.vue';
 import AppointmentsView from '../views/AppointmentsView.vue'
+import AppointmentView from '../views/AppointmentView.vue'
 
 Vue.use(VueRouter);
 
@@ -48,6 +49,11 @@ const routes = [
       },
     ]
   },
+  {
+    path: '/appointment/:id',
+    name: 'AppointmentView',
+    component: AppointmentView,
+  }
 ];
 
 const router = new VueRouter({

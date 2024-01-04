@@ -147,8 +147,8 @@ def get_user_by_email(email):
             print(f"User found: {user}")
             return {
                 "id": user[0],
-                "email": user[2],
-                "password": user[3]
+                "email": user[3],
+                "password": user[4]
             }
         else:
             print("User not found")
@@ -213,7 +213,6 @@ def get_pacient_by_user_id(id):
         # Close the cursor
         if cursor:
             cursor.close()
-
 
 def insert_pacient(user_id, gender, age, medical_history):
     try:
@@ -379,6 +378,7 @@ app.config['JWT_SECRET_KEY'] = "123d$!@98w21w1D#D!"  # Change this to a secret k
 def login():
     data = request.get_json()
     print(data)
+
     email = data.get('email')
     password = data.get('password')
 
@@ -413,13 +413,19 @@ def doctors():
 
 @app.route('/specialties')
 def getSpecialties():
-     return jsonify(get_all_specialties()), 200
+    return jsonify(get_all_specialties()), 200
 
 @app.route('/appointments/create', methods=['POST'])
 @token_required
 def createAppointment():
     doctors = get_all_doctors()
     return jsonify(doctors), 200
+
+@app.route('/api/appointments/<int:appointment_id>')
+@token_required
+def view_appointment(appointment_id):
+    print("DE AICI")
+    return jsonify({"id" : appointment_id}), 200
 
 @app.route('/register', methods=["POST"])
 def registerNewUser():

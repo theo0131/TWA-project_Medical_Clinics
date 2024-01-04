@@ -18,7 +18,7 @@
             <br>
             <div class="row">
                 <div v-for="appointment in clientAppointments" :key="appointment.id" class="col-md-4 mb-4">
-                    <div class="card">
+                    <div class="card" @click="viewAppointment(appointment)">
                         <div class="card-body">
                             <!-- Display appointment details here -->
                             <h5 class="card-title">{{ appointment.title }}</h5>
@@ -116,6 +116,12 @@ export default {
             this.appointment.patientName = '';
             this.appointment.doctor = '';
             this.appointment.appointmentDate = '';
+        },
+        viewAppointment(appointment) {
+            this.$router.push(`/appointment/${appointment.id}`);
+            // Perform actions when the card is clicked
+            console.log("Clicked card:", appointment);
+            // You can add your custom logic here based on the clicked appointment
         }
     }
 };

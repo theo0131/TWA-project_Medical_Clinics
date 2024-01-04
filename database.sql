@@ -1,3 +1,5 @@
+-- \i C:/Users/mihai/OneDrive/Desktop/2023-2024/TWA/TWA-project_Medical_Clinics/database.sql
+
 SELECT pg_terminate_backend(pg_stat_activity.pid)
 FROM pg_stat_activity
 WHERE pg_stat_activity.datname = 'medical_network';
