@@ -101,6 +101,7 @@ import NavBar from '@/components/NavBar.vue';
       } else {
         console.log('No token found in localStorage');
         // Handle case where token is missing (redirect to login, show error message, etc.)
+        this.$router.push("/");
       }
 
     },
@@ -131,8 +132,9 @@ import NavBar from '@/components/NavBar.vue';
           this.errorMessage = 'Failed to update the appointment. Please try again.';
         });
       } else {
-        console.log('No token found in localStorage');
+        console.log('No token found in localStorage for AppointmentView');
         // Handle case where token is missing (redirect to login, show error message, etc.)
+        this.$router.push("/login");
       }
     }
     },

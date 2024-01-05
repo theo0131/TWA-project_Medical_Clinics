@@ -77,9 +77,9 @@ export default {
             // TODO: ia din database appointmenturile
         } else {
             // Token doesn't exist in localStorage, handle accordingly
-            console.log('No token found in localStorage');
-            // For example, redirect to login page
-            // window.location.href = '/login';
+            console.log('No token found in localStorage for AppointmentsView');
+            // Handle case where token is missing (redirect to login, show error message, etc.)
+            this.$router.push("/");
         }
     },
     methods: {

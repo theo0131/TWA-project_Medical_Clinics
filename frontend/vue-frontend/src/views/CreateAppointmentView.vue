@@ -85,6 +85,7 @@ export default {
         } else {
           // Token doesn't exist in localStorage, handle accordingly
           console.log('No token found in localStorage');
+          this.$router.push("/");
           // For example, redirect to login page
           // window.location.href = '/login';
         }

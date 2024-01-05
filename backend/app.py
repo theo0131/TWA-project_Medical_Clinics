@@ -148,7 +148,8 @@ def get_user_by_email(email):
             return {
                 "id": user[0],
                 "email": user[3],
-                "password": user[4]
+                "password": user[4],
+                "type": user[5]
             }
         else:
             print("User not found")
@@ -366,6 +367,8 @@ def token_required(f):
     return decorated
 ##############################################
 
+currentUserType = None
+
 app = Flask(__name__)
 
 app.register_blueprint(swagger_ui_blueprint, url_prefix=SWAGGER_URL)
@@ -385,6 +388,9 @@ def login():
     print(email)
     credentials = get_user_by_email(email)
     print(credentials)
+
+    global currentUserType
+    currentUserType = credentials['type']
 
     if credentials and password == credentials['password']:
         payload = {
@@ -435,7 +441,7 @@ def updateAppointment():
 @app.route('/api/appointments/<int:appointment_id>')
 @token_required
 def view_appointment(appointment_id):
-    print("DE AICI")
+    global currentUserType
     appointment = {
         "id" : appointment_id,
         "medic" : "Ion",
@@ -443,7 +449,7 @@ def view_appointment(appointment_id):
         "time" : "12:00 PM",
         "reason" : "Ca de ce nu pana la urma",
         "diagnostic" : "Mai stai si tu pe acasa",
-        "userType" : "pacient"
+        "userType" : str(currentUserType)
     }
 
     return jsonify(appointment), 200
