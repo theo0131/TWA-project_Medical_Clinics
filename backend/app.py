@@ -96,7 +96,7 @@ finally:
 #         connection.close()
 #         print("Connection closed.")
         
-#####################################################################################################
+#############################################  users ops ########################################################
 def insert_user(firstName, lastName, email, password, type):
     try:
         # Create a cursor object to interact with the database
@@ -328,6 +328,127 @@ def get_all_specialties():
         if cursor:
             cursor.close()
 
+#############################################  locations ops ########################################################
+
+def insert_locations(address_id, address_name):
+    try:
+        cursor = connection.cursor()
+
+        cursor.execute("""
+            INSERT INTO locations 
+            (address_id, address_name) 
+            VALUES (%s, %s)
+        """, (address_id, address_name))
+
+        # Commit the transaction
+        connection.commit()
+
+        print("Location inserted successfully!")
+
+    except psycopg2.Error as e:
+        print("Error inserting location:", e)
+
+    finally:
+        # Close the cursor and connection
+        if cursor:
+            cursor.close()
+
+#############################################  appointements ops ########################################################
+
+def insert_appointment(pacient_id, medic_id, user_id, sp_id, address_id, reason, diagnostic):
+    try:
+        cursor = connection.cursor()
+
+        cursor.execute("""
+            INSERT INTO appointments 
+            (pacient_id, medic_id, user_id, sp_id, address_id, reason, diagnostic) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """, (pacient_id, medic_id, user_id, sp_id, address_id, reason, diagnostic))
+
+        # Commit the transaction
+        connection.commit()
+
+        print("Appointment inserted successfully!")
+
+    except psycopg2.Error as e:
+        print("Error inserting appointment:", e)
+
+    finally:
+        # Close the cursor and connection
+        if cursor:
+            cursor.close()
+        # if connection:
+        #     connection.close()
+
+def remove_appointment(connection_params, appmt_id):
+    try:
+       
+        cursor = connection.cursor()
+        cursor.execute("""
+            DELETE FROM appointments WHERE appmt_id = %s
+        """, (appmt_id))
+
+        # Commit the transaction
+        connection.commit()
+
+        print(f"Appointment with ID {appmt_id} removed successfully!")
+
+    except psycopg2.Error as e:
+        print("Error removing appointment:", e)
+
+    finally:
+        # Close the cursor and connection
+        if cursor:
+            cursor.close()
+
+def add_diagnostic(appmt_id, diagnostic):
+    try:
+        cursor = connection.cursor()
+        cursor.execute("""
+            UPDATE appointments SET diagnostic = %s WHERE appmt_id = %s
+        """, (diagnostic, appmt_id))
+
+        # Commit the transaction
+        connection.commit()
+
+        print(f"Diagnostic for appointment with ID {appmt_id} modified successfully!")
+
+    except psycopg2.Error as e:
+        print("Error modifying diagnostic:", e)
+
+    finally:
+        # Close the cursor and connection
+        if cursor:
+            cursor.close()
+
+def get_appointment_details(appmt_id):
+    try:
+        cursor = connection.cursor()
+        cursor.execute("""
+           SELECT * FROM appointments WHERE appmt_id = %s
+        """, (appmt_id))
+
+        # Fetch the result
+        result = cursor.fetchone()
+
+        if result:
+            # Convert the result to a dictionary for easy access
+            columns = [desc[0] for desc in cursor.description]
+            appointment_details = dict(zip(columns, result))
+            return appointment_details
+        else:
+            print(f"Appointment with ID {appmt_id} not found.")
+            return None
+
+    except psycopg2.Error as e:
+        print("Error retrieving appointment details:", e)
+        return None
+
+    finally:
+        # Close the cursor and connection
+        if cursor:
+            cursor.close()
+
 ###################################################################################################
 
 def token_required(f):
@@ -366,6 +487,9 @@ def token_required(f):
 
     return decorated
 ##############################################
+insert_locations(address_id=1, address_name="Militari")
+insert_appointment(pacient_id=1, medic_id=1, user_id=1, sp_id=1, address_id=1, reason="Checkup", diagnostic="None")
+add_diagnostic(1, "psoriazis")
 
 currentUserType = None
 
