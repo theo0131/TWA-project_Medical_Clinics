@@ -130,13 +130,9 @@ def get_user_by_email(email):
         # Create a cursor to perform database operations
         cursor = connection.cursor()
 
-        print(type(email))
-
         # Execute the SQL query to select the user by username
         cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
         
-        print('here2')
-
         # Fetch the result (if any)
         user = cursor.fetchone()
 
@@ -144,7 +140,7 @@ def get_user_by_email(email):
             cursor.close()
 
         if user:
-            print(f"User found: {user}")
+            # print(f"User found: {user}")
             return {
                 "id": user[0],
                 "email": user[3],
@@ -175,7 +171,7 @@ def get_user_by_id(id):
         user = cursor.fetchone()
 
         if user:
-            print(f"User found: {user}")
+            # print(f"User found: {user}")
             return user
         else:
             print("User not found")
@@ -201,7 +197,7 @@ def get_pacient_by_user_id(id):
         user = cursor.fetchone()
 
         if user:
-            print(f"User found: {user}")
+            # print(f"User found: {user}")
             return user
         else:
             print("User not found")
@@ -244,7 +240,7 @@ def get_all_doctors():
         cursor = connection.cursor()
 
         # Insert a new user
-        cursor.execute("""SELECT medics.medic_id, medics.specialization, users.first_name, users.last_name 
+        cursor.execute("""SELECT medics.medic_id, medics.specialization, users.first_name, users.last_name, users.user_id
                        FROM medics 
                        JOIN users ON medics.user_id = users.user_id;""")
 
@@ -257,13 +253,47 @@ def get_all_doctors():
         doctors_list = []
         for doctor in doctors:
             doctors_list.append({
-                'medic_id': doctor[0],
+                'doctor_id': doctor[0],
                 'specialization' : doctor[1],
-                'firstName' : doctor[2],
-                'lastName' : doctor[3]
+                'name' : str(doctor[2]) + " " + str(doctor[3]),
+                'user_id' : doctor[4]
             })
-        print(doctors_list)
         return doctors_list
+    
+    except (Exception, psycopg2.Error) as error:
+        print(f"Error: {error}")
+
+    finally:
+        # Close the cursor
+        if cursor:
+            cursor.close()
+
+def get_all_pacients():
+    try:
+        # Create a cursor object to interact with the database
+        cursor = connection.cursor()
+
+        # Insert a new user
+        cursor.execute("""SELECT pacients.pacient_id, pacients.gender, pacients.age, users.first_name, users.last_name, users.user_id 
+                       FROM pacients 
+                       JOIN users ON pacients.user_id = users.user_id;""")
+
+        # Commit the transaction
+        connection.commit()
+
+        # Fetch the ID of the inserted user
+        pacients = cursor.fetchall()
+
+        pacients_list = []
+        for pacient in pacients:
+            pacients_list.append({
+                'pacient_id': pacient[0],
+                'gender' : pacient[1],
+                'age' : pacient[2],
+                'name' : str(pacient[3]) + " " + str(pacient[4]),
+                'user_id' : pacient[5]
+            })
+        return pacients_list
     
     except (Exception, psycopg2.Error) as error:
         print(f"Error: {error}")
@@ -330,15 +360,15 @@ def get_all_specialties():
 
 #############################################  locations ops ########################################################
 
-def insert_locations(address_id, address_name):
+def insert_locations(address_name):
     try:
         cursor = connection.cursor()
 
         cursor.execute("""
             INSERT INTO locations 
-            (address_id, address_name) 
-            VALUES (%s, %s)
-        """, (address_id, address_name))
+            (address_name) 
+            VALUES (%s)
+        """, (address_name,))
 
         # Commit the transaction
         connection.commit()
@@ -353,17 +383,48 @@ def insert_locations(address_id, address_name):
         if cursor:
             cursor.close()
 
+def get_all_locations():
+    try:
+        # Create a cursor object to interact with the database
+        cursor = connection.cursor()
+
+        # Insert a new user
+        cursor.execute("""SELECT * 
+                       FROM locations;""")
+
+        # Commit the transaction
+        connection.commit()
+
+        # Fetch the ID of the inserted user
+        locations = cursor.fetchall()
+
+        locations_list = []
+        for location in locations:
+            locations_list.append({
+                'id': location[0],
+                'name' : location[1],
+            })
+        return locations_list
+    
+    except (Exception, psycopg2.Error) as error:
+        print(f"Error: {error}")
+
+    finally:
+        # Close the cursor
+        if cursor:
+            cursor.close()
+
 #############################################  appointements ops ########################################################
 
-def insert_appointment(pacient_id, medic_id, user_id, sp_id, address_id, reason, diagnostic):
+def insert_appointment(pacient_id, medic_id, reason):
     try:
         cursor = connection.cursor()
 
         cursor.execute("""
             INSERT INTO appointments 
-            (pacient_id, medic_id, user_id, sp_id, address_id, reason, diagnostic) 
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
-        """, (pacient_id, medic_id, user_id, sp_id, address_id, reason, diagnostic))
+            (pacient_id, medic_id, reason) 
+            VALUES (%s, %s, %s)
+        """, (pacient_id, medic_id, reason))
 
         # Commit the transaction
         connection.commit()
@@ -449,6 +510,58 @@ def get_appointment_details(appmt_id):
         if cursor:
             cursor.close()
 
+def get_all_appointments():
+    try:
+        cursor = connection.cursor()
+        cursor.execute("""SELECT * FROM appointments;""")
+
+        # Commit the transaction
+        connection.commit()
+
+        # Fetch the ID of the inserted user
+        appointments = cursor.fetchall()
+        pacient_list = {}
+        for pacient in get_all_pacients():
+            pacient_list[pacient['pacient_id']] = pacient
+        pacient_id_mapping = {}
+        for pacient in pacient_list.values():
+            pacient_id_mapping[pacient['pacient_id']] = pacient['user_id']
+
+        doctors_list = {}
+        for doctor in get_all_doctors():
+            doctors_list[doctor['doctor_id']] = doctor
+        doctors_id_mapping = {}
+        for doctors in doctors_list.values():
+            doctors_id_mapping[doctors['doctor_id']] = doctors['user_id']
+
+        locations_list = {}
+        for location in get_all_locations():
+            locations_list[location['id']] = location
+
+
+        appointments_list = []
+        for appointment in appointments:
+            appointments_list.append({
+                'id': appointment[0],
+                'pacient_id' : pacient_id_mapping[pacient_list[appointment[1]]['pacient_id']],
+                'pacient' : pacient_list[appointment[1]]['name'],
+                'doctor_id' : doctors_id_mapping[doctors_list[appointment[2]]['doctor_id']],
+                'doctor' : doctors_list[appointment[2]]['name'],
+                # 'address' : locations_list[appointment[5]]['name'],
+                'time': appointment[6],
+                'reason' : appointment[7],
+                'diagnostic' : appointment[8]
+            })
+        return appointments_list
+    
+    except (Exception, psycopg2.Error) as error:
+        print(f"Error: {error}")
+
+    finally:
+        # Close the cursor
+        if cursor:
+            cursor.close()
+
 ###################################################################################################
 
 def token_required(f):
@@ -487,11 +600,9 @@ def token_required(f):
 
     return decorated
 ##############################################
-insert_locations(address_id=1, address_name="Militari")
-insert_appointment(pacient_id=1, medic_id=1, user_id=1, sp_id=1, address_id=1, reason="Checkup", diagnostic="None")
-add_diagnostic(1, "psoriazis")
 
 currentUserType = None
+loggedUserId = None
 
 app = Flask(__name__)
 
@@ -517,6 +628,8 @@ def login():
     currentUserType = credentials['type']
 
     if credentials and password == credentials['password']:
+        global loggedUserId
+        loggedUserId = credentials['id']
         payload = {
             'id': str(credentials['id']),
             'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)  # Token expiration time
@@ -538,45 +651,62 @@ def get_users():
 @app.route('/doctors')
 @token_required
 def doctors():
-    doctors = get_all_doctors()
-    return jsonify(doctors), 200
+    return jsonify(get_all_doctors()), 200
+
+@app.route('/pacients')
+@token_required
+def pacients():
+    return jsonify(get_all_pacients()), 200
 
 @app.route('/specialties')
 def getSpecialties():
     return jsonify(get_all_specialties()), 200
 
-@app.route('/appointments/create', methods=['POST'])
+@app.route('/appointments')
 @token_required
+def getAppointments():
+    global currentUserType, loggedUserId
+    if currentUserType == "pacient":
+        appointments = [app for app in get_all_appointments() if app['pacient_id'] == loggedUserId]
+    else:
+        appointments = [app for app in get_all_appointments() if app['doctor_id'] == loggedUserId]
+
+    return jsonify({
+            "appointments": appointments,
+            "userType": currentUserType
+        }), 200
+
+@app.route('/appointments/create', methods=['POST'])
 def createAppointment():
     data = request.get_json()
-    print(data)
-    # TODO introdu aceste data in database
-    doctors = get_all_doctors()
-    return jsonify(doctors), 200
+    pacient_list = {}
+    for pacient in get_all_pacients():
+        pacient_list[pacient['pacient_id']] = pacient
+    pacient_id_mapping = {}
+    for pacient in pacient_list.values():
+        pacient_id_mapping[pacient['user_id']] = pacient['pacient_id']
+
+    global loggedUserId
+    insert_appointment(pacient_id_mapping[loggedUserId], data['doctor_id'], data['reason'])
+    return jsonify({}), 200
 
 @app.route('/appointments/update', methods=['POST'])
 def updateAppointment():
     data = request.get_json()
-    print(data)
-    # TODO updateaza aceste data in database
-    doctors = get_all_doctors()
-    return jsonify(doctors), 200
+    add_diagnostic(data['id'], data['diagnostic'])
+    return jsonify({}), 200
 
 @app.route('/api/appointments/<int:appointment_id>')
 @token_required
 def view_appointment(appointment_id):
     global currentUserType
-    appointment = {
-        "id" : appointment_id,
-        "medic" : "Ion",
-        "pacient" : "Vasile",
-        "time" : "12:00 PM",
-        "reason" : "Ca de ce nu pana la urma",
-        "diagnostic" : "Mai stai si tu pe acasa",
-        "userType" : str(currentUserType)
-    }
-
-    return jsonify(appointment), 200
+    all_appointments = get_all_appointments()
+    for appointment in all_appointments:
+        if appointment['id'] == appointment_id:
+            return jsonify({
+                "appointment": appointment,
+                "userType" : str(currentUserType)
+            }), 200
 
 @app.route('/register', methods=["POST"])
 def registerNewUser():

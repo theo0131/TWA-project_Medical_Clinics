@@ -8,7 +8,7 @@
                     <div class="col">
                         <h2>Your Appointments</h2>
                     </div>
-                    <div class="col-auto p-0 d-flex align-items-center">
+                    <div class="col-auto p-0 d-flex align-items-center" v-if="userType === 'pacient'">
                         <button  class="btn btn-success " @click="createAppointmentButtonHandle">+ Add Appointment</button>
                     </div>
                 </div>
@@ -21,7 +21,12 @@
                     <div class="card" @click="viewAppointment(appointment)">
                         <div class="card-body">
                             <!-- Display appointment details here -->
-                            <h5 class="card-title">{{ appointment.title }}</h5>
+                            <h5 class="card-title" v-if="userType === 'doctor'">
+                                Appointment with pacient {{ appointment.pacient }}
+                            </h5>
+                            <h5 class="card-title" v-else>
+                                Appointment with doctor {{ appointment.doctor }}
+                            </h5>  
                             <p class="card-text">{{ appointment.date }}</p>
                         </div>
                     </div>
@@ -42,14 +47,8 @@ export default {
     },
     data() {
         return {
-        clientAppointments: [
-            { id: 1, title: 'Appointment 1', date: '2023-01-01' },
-            { id: 2, title: 'Appointment 2', date: '2023-02-01' },
-            { id: 3, title: 'Appointment 3', date: '2023-02-01' },
-            { id: 4, title: 'Appointment 4', date: '2023-02-01' },
-            { id: 5, title: 'Appointment 5', date: '2023-02-01' },
-            // Add more appointments as needed
-        ],
+        userType: "",
+        clientAppointments: [],
         };
     },
     mounted() {
@@ -60,20 +59,21 @@ export default {
 
         if (token) {
             // If token exists, make an authenticated request to get doctors
-            axios.get('http://127.0.0.1:5000/doctors', {
-                headers: {
-                    Authorization: `${token}`
-                }
-            })
+
+                axios.get('http://127.0.0.1:5000/appointments', {
+                    headers: {
+                        Authorization: `${token}`
+                    }
+                })
                 .then(response => {
                     // Handle successful response and populate doctors data
-                    this.doctors = response.data;
+                    this.clientAppointments = response.data.appointments;
+                    this.userType = response.data.userType;
                 })
                 .catch(error => {
                     // Handle error (e.g., authentication failure or unauthorized access)
                     console.error('Error fetching doctors:', error);
                 });
-
             // TODO: ia din database appointmenturile
         } else {
             // Token doesn't exist in localStorage, handle accordingly

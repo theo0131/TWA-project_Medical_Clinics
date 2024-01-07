@@ -1,4 +1,4 @@
--- \i C:/Users/mihai/OneDrive/Desktop/2023-2024/TWA/TWA-project_Medical_Clinics/database.sql
+--  
 
 SELECT pg_terminate_backend(pg_stat_activity.pid)
 FROM pg_stat_activity
@@ -92,6 +92,9 @@ CREATE TABLE locations (
     address_name VARCHAR(50)
 );
 
+INSERT INTO locations
+VALUES (1, 'Militari');
+
 CREATE TABLE appointments (
     appmt_id SERIAL PRIMARY KEY,
     pacient_id INT REFERENCES pacients(pacient_id),
@@ -103,3 +106,7 @@ CREATE TABLE appointments (
     reason VARCHAR(500),
     diagnostic VARCHAR(500)
 );
+
+INSERT INTO appointments 
+(pacient_id, medic_id, sp_id, address_id, reason)
+VALUES (1, 1, 1, 1, 'Nu vreau sa stau acasa');

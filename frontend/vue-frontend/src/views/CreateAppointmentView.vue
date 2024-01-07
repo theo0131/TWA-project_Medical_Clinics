@@ -13,9 +13,9 @@
           @submit.prevent="scheduleAppointment">
           <div class="form-group">
               <label for="doctor">Doctor:</label>
-              <select v-model="selectedUserIndex" id="userSelect">
+              <select v-model="selectedUserIndex" id="userSelect" @change="handleChange">
                 <option v-for="doctor in doctors" :key="doctor.medic_id" :value="doctor.medic_id">
-                  {{ doctor.firstName + ' ' + doctor.lastName}}
+                  {{ doctor.name }}
                 </option>
               </select>
           </div>
@@ -51,14 +51,13 @@ export default {
   data() {
     return {
       appointment: {
-        patientName: '',
+        doctor_id: 1,
         appointmentDate: '',
         reason: ''
       },
       doctors: [],
       successMessage: '',
       errorMessage: '',
-      selectedUserIndex: null,
     };
   },
   mounted() {
@@ -91,11 +90,16 @@ export default {
         }
   },
   methods: {
+    handleChange(e) {
+        if(e.target.options.selectedIndex > -1) {
+            this.appointment.doctor_id = this.doctors[e.target.options.selectedIndex].doctor_id
+        }
+    },
     scheduleAppointment() {
       // Logic to schedule appointment
       // Include the token in the request headers for authentication
       const token = localStorage.getItem('token');
-      console.log(this.selectedUserIndex);
+      console.log(this.appointment.doctor_id);
       if (token) {
         axios.post('http://127.0.0.1:5000/appointments/create', this.appointment, {
           headers: {
@@ -121,7 +125,7 @@ export default {
     },
     clearForm() {
       // Function to clear the form after successful submission
-      this.appointment.patientName = '';
+      this.appointment.doctor_id = '';
       this.appointment.doctor = '';
       this.appointment.appointmentDate = '';
     }

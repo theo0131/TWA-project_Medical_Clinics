@@ -85,12 +85,12 @@ import NavBar from '@/components/NavBar.vue';
           })
         .then(response => {
           console.log(response.data);
-          this.appointment.id = response.data.id;
-          this.appointment.medic = response.data.medic;
-          this.appointment.pacient = response.data.pacient;
-          this.appointment.time = response.data.time;
-          this.appointment.reason = response.data.reason;
-          this.appointment.diagnostic = response.data.diagnostic;
+          this.appointment.id = response.data.appointment.id;
+          this.appointment.medic = response.data.appointment.doctor;
+          this.appointment.pacient = response.data.appointment.pacient;
+          this.appointment.time = response.data.appointment.time;
+          this.appointment.reason = response.data.appointment.reason;
+          this.appointment.diagnostic = response.data.appointment.diagnostic;
           this.appointment.userType = response.data.userType;
         })
         .catch(error => {
