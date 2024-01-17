@@ -13,7 +13,7 @@
           @submit.prevent="scheduleAppointment">
           <div class="form-group">
               <label for="doctor">Doctor:</label>
-              <select v-model="selectedUserIndex" id="userSelect" @change="handleChange">
+              <select  id="userSelect" @change="handleChange">
                 <option v-for="doctor in doctors" :key="doctor.medic_id" :value="doctor.medic_id">
                   {{ doctor.name }}
                 </option>
@@ -103,7 +103,7 @@ export default {
       if (token) {
         axios.post('http://127.0.0.1:5000/appointments/create', this.appointment, {
           headers: {
-            Authorization: `Bearer ${token}`
+            Authorization: `${token}`
           }
         })
         .then(response => {

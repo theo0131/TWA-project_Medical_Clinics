@@ -102,7 +102,7 @@ CREATE TABLE appointments (
     user_id INT REFERENCES users(user_id),
     sp_id INT REFERENCES specializations(sp_id),
     address_id INT REFERENCES locations(address_id),
-    appmt_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    appmt_timestamp VARCHAR(500),
     reason VARCHAR(500),
     diagnostic VARCHAR(500)
 );

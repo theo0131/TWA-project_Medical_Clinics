@@ -16,9 +16,36 @@
         ],
         "parameters": [
           {
+            "name": "CredentialsDto",
+            "in": "body",
+            "description": "JSON data for the current user's credentials",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CredentialsDto"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation; acquired JWT from the backend server."
+          }
+        }
+      }
+    },
+    "/register": {
+      "post": {
+        "description": "Register a new user that can later log in",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
             "name": "UserDto",
             "in": "body",
-            "description": "JSON data for the current user",
+            "description": "JSON data for the user's details",
             "required": true,
             "schema": {
               "$ref": "#/definitions/UserDto"
@@ -27,14 +54,14 @@
         ],
         "responses": {
           "200": {
-            "description": "Successful operation"
+            "description": "Successful operation; user has been added to the database."
           }
         }
       }
     },
     "/doctors": {
       "get": {
-        "description": "Returns token for the current user that tries to login",
+        "description": "Returns a list of all the doctors",
         "produces": [
           "application/json"
         ],
@@ -56,13 +83,184 @@
         }
       }
     },
-    "/api/users": {
+    "/specialties": {
       "get": {
-        "description": "Returns token for the current user that tries to login",
+        "description": "Returns a list of all the existing specializations.",
         "produces": [
           "application/json"
         ],
         "parameters": [
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/pacients": {
+      "get": {
+        "description": "Returns a list of all the pacients",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "JWT Token used to authorize the current operation",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/JWT"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/appointments": {
+      "get": {
+        "description": "Returns a list of all the appointments the current pacient / the doctor has.",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "JWT Token used to authorize the current operation",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/JWT"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/appointments/create": {
+      "post": {
+        "description": "Create a new appointment for the current pacient.",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "JWT Token used to authorize the current operation",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/JWT"
+            }
+          },
+          {
+            "name": "AppointmentDto",
+            "in": "body",
+            "description": "JSON data for the current appointment to be added",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AppointmentDto"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/appointments/update": {
+      "post": {
+        "description": "Update an existing appointment scheduled for the current doctor with the given diagnostic.",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "JWT Token used to authorize the current operation",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/JWT"
+            }
+          },
+          {
+            "name": "AppointmentUpdateDto",
+            "in": "body",
+            "description": "JSON data for the current appointment to be updated",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AppointmentUpdateDto"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation; the appointment's diagnostic."
+          }
+        }
+      }
+    },
+    "/api/appointments/{appointment_id}": {
+      "get": {
+        "description": "Get extra information about a specific appointment by its id.",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "appointment_id",
+            "in": "path",
+            "description": "ID of the appointment (integer)",
+            "required": true,
+            "schema": {
+                "type": "integer"
+            }
+        },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "JWT Token used to authorize the current operation",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/JWT"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation"
+          }
+        }
+      }
+    },
+    "/api/appointments/delete/{appointment_id}": {
+      "delete": {
+        "description": "Delete an appointment by its id",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "appointment_id",
+            "in": "path",
+            "description": "ID of the appointment (integer)",
+            "required": true,
+            "schema": {
+                "type": "integer"
+            }
+        },
           {
             "name": "Authorization",
             "in": "header",
@@ -82,13 +280,76 @@
     }
   },
   "definitions": {
-    "UserDto": {
+    "CredentialsDto": {
       "type": "object",
       "properties": {
-        "username": {
+        "email": {
           "type": "string"
         },
         "password": {
+          "type": "string"
+        }
+      }
+    },
+    "UserDto": {
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "gender": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        },
+        "specialty": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "age": {
+          "type": "string"
+        }
+      }
+      },
+    "AppointmentDto": {
+      "type": "object",
+      "properties": {
+        "doctor_id": {
+          "type": "integer"
+        },
+        "specialization_id": {
+          "type": "integer"
+        },
+        "address_id": {
+          "type": "integer"
+        },
+        "appointmentDate": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "diagnostic": {
+          "type": "string"
+        }
+      }
+    },
+    "AppointmentUpdateDto": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "diagnostic": {
           "type": "string"
         }
       }

@@ -21,40 +21,6 @@ swagger_ui_blueprint = get_swaggerui_blueprint(
 
 import psycopg2
 
-# # Simulated user data (replace with your user database logic)
-users = {
-    'user1': {'password': 'password1', 'role': 'client'},
-    'user2': {'password': 'password2', 'role': 'admin'}
-}
-
-appointments = [
-    {
-        'id' : 1,
-        'doctor_name' : 'Dr. Smith',
-        'date' : '2023-01-01'
-    },
-    {
-        'id' : 2,
-        'doctor_name' : 'Dr. Smith',
-        'date' : '2023-02-01'
-    },
-    {
-        'id' : 3,
-        'doctor_name' : 'Dr. Smith',
-        'date' : '2023-02-01'
-    },
-    {
-        'id' : 4,
-        'doctor_name' : 'Dr. Smith',
-        'date' : '2023-02-01'
-    },
-    {
-        'id' : 5,
-        'doctor_name' : 'Dr. Smith',
-        'date' : '2023-02-01'
-    }
-]
-
 # steps to connect to postgresql database: install postgresql, 
 # start postgresql server: sudo service postgresql start, 
 # check with pg_isready, 
@@ -416,15 +382,15 @@ def get_all_locations():
 
 #############################################  appointements ops ########################################################
 
-def insert_appointment(pacient_id, medic_id, reason):
+def insert_appointment(pacient_id, medic_id, reason, timestamp):
     try:
         cursor = connection.cursor()
 
         cursor.execute("""
             INSERT INTO appointments 
-            (pacient_id, medic_id, reason) 
-            VALUES (%s, %s, %s)
-        """, (pacient_id, medic_id, reason))
+            (pacient_id, medic_id, reason, appmt_timestamp) 
+            VALUES (%s, %s, %s, %s)
+        """, (pacient_id, medic_id, reason, timestamp))
 
         # Commit the transaction
         connection.commit()
@@ -562,6 +528,23 @@ def get_all_appointments():
         if cursor:
             cursor.close()
 
+def delete_appointment_db(id):
+    try:
+        cursor = connection.cursor()
+        cursor.execute("""DELETE FROM appointments WHERE appmt_id=%s;""", (str(id)))
+
+        # Commit the transaction
+        connection.commit()
+
+    except (Exception, psycopg2.Error) as error:
+        print(f"Error: {error}")
+
+    finally:
+        # Close the cursor
+        if cursor:
+            cursor.close()
+
+
 ###################################################################################################
 
 def token_required(f):
@@ -639,15 +622,6 @@ def login():
     else:
         return jsonify({'message': 'Invalid credentials'}), 401
 
-@app.route('/api/users')
-def get_users():
-    users = [
-        {"id": 1, "name": "John"},
-        {"id": 2, "name": "Jane"},
-        # Add more users as needed
-    ]
-    return jsonify(users)
-
 @app.route('/doctors')
 @token_required
 def doctors():
@@ -677,6 +651,7 @@ def getAppointments():
         }), 200
 
 @app.route('/appointments/create', methods=['POST'])
+@token_required
 def createAppointment():
     data = request.get_json()
     pacient_list = {}
@@ -687,10 +662,11 @@ def createAppointment():
         pacient_id_mapping[pacient['user_id']] = pacient['pacient_id']
 
     global loggedUserId
-    insert_appointment(pacient_id_mapping[loggedUserId], data['doctor_id'], data['reason'])
+    insert_appointment(pacient_id_mapping[loggedUserId], data['doctor_id'], data['reason'], data['appointmentDate'])
     return jsonify({}), 200
 
 @app.route('/appointments/update', methods=['POST'])
+@token_required
 def updateAppointment():
     data = request.get_json()
     add_diagnostic(data['id'], data['diagnostic'])
@@ -707,6 +683,13 @@ def view_appointment(appointment_id):
                 "appointment": appointment,
                 "userType" : str(currentUserType)
             }), 200
+
+@app.route('/api/appointments/delete/<int:appointment_id>', methods=['DELETE'])
+@token_required
+def delete_appointment(appointment_id):
+    print('Delete appointment', appointment_id)
+    delete_appointment_db(appointment_id)
+    return jsonify({}), 200
 
 @app.route('/register', methods=["POST"])
 def registerNewUser():
